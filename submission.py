@@ -7,8 +7,6 @@ Version: May 1, 2024
 -------------------------------------------------------------------------------
 """
 # List your libraries and modules here. Don't forget to update environment.yml!
-from IPython import get_ipython
-get_ipython().magic('reset -sf')
 import pandas as pd
 # ----------------------------------------------------------------------------
 def clean_df(df, background_df=None):

@@ -1,6 +1,8 @@
 """
---------------- Population Research Centre (RUG) ------------------------------
+------------- Population Research Centre RUG (PRC-RUG) ------------------------
 Predicting Fertility data challenge (PreFer)
+Version: May 1, 2024
+         Updated based on the feedback of the PreFer team
 -------------------------------------------------------------------------------
 """
 from IPython import get_ipython

@@ -7,8 +7,10 @@ Version: May 1, 2024
 """
 from IPython import get_ipython
 get_ipython().magic('reset -sf')
-import joblib  # Ensure this import is at the top of your script
+import joblib  
 import pandas as pd
+import sklearn
+print(sklearn.__version__)
 from sklearn.ensemble import RandomForestClassifier # Random forest
 from sklearn.model_selection import GridSearchCV
 from imblearn.over_sampling import ADASYN
@@ -96,7 +98,7 @@ def train_save_model(cleaned_df):
     best_clf = grid_search.best_estimator_
     best_clf.fit(Xsam, ysam)
     predictions = best_clf.predict(Xsam)
-    joblib.dump(best_clf, 'random_forest_model.joblib')
+    joblib.dump(best_clf, 'RFmodel.joblib')
     return predictions
 #%% ------------------------------------------------------------------
 predictions = train_save_model(cleaned_df)

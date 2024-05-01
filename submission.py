@@ -4,6 +4,7 @@
 Predicting Fertility data challenge (PreFer)
 Version: May 1, 2024
          Updated based on the feedback of the PreFer team
+         New model estimated based on a downgraded version of sklearn (due to unpickle issues)
 -------------------------------------------------------------------------------
 """
 # List your libraries and modules here. Don't forget to update environment.yml!
@@ -50,7 +51,7 @@ def clean_df(df, background_df=None):
     return df
 
 import joblib
-def predict_outcomes(df, background_df=None, model_path="random_forest_model.joblib"):
+def predict_outcomes(df, background_df=None, model_path="RFmodel.joblib"):
     df = clean_df(df, background_df=None)
     ## This script contains a bare minimum working example
     if "nomem_encr" not in df.columns:

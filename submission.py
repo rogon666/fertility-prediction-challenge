@@ -10,6 +10,7 @@ Version: May 11, 2024
          Updated based on the feedback of the PreFer team
          New model estimated based on a downgraded version of sklearn (due to unpickle issues)
          May 11: includes Abi's code and Zuzana's and Adrien's variables
+         I dropped variables that crush the GitHub test <---------------------
 -------------------------------------------------------------------------------
 """         
 # List your libraries and modules here. Don't forget to update environment.yml!
@@ -142,7 +143,7 @@ def clean_df(df, background_df=None):
     consolidated_df = pd.concat([consolidated_df, pd.DataFrame(new_columns)], axis=1)
     # -------------------------------------------------------------------------
     # Define the list of column names to select
-    selected_features = ['nomem_encr', 'new_child',
+    selected_features = ['nomem_encr',
        'birthyear_bg', 
        'age_bg', 
        'gender_bg',
@@ -157,7 +158,7 @@ def clean_df(df, background_df=None):
        'religious_6.0',
        'church_2.0', 
        'migration_0.0', 
-       'health_3.0',
+       # 'health_3.0', # Crashed in test
        'civilstatus_married',
        'morechildren_1.0', 
        'morechildren_2.0', 
@@ -173,9 +174,9 @@ def clean_df(df, background_df=None):
        'duration', 
        'duration2',
        'partner_satisfaction',
-       'partner3cat_1.0', # with partner
-       'partner3cat_2.0', # non-resident partner
-       'partner3cat_3.0', # no partner, leave 3 in case of singularity (3: low frequency)
+       # 'partner3cat_1.0', # with partner
+       # 'partner3cat_2.0', # non-resident partner
+       # 'partner3cat_3.0', # no partner, leave 3 in case of singularity (3: low frequency)
        'cvresp' # Created by Abi
        ]
     #%% Create a new DataFrame with the selected columns

@@ -171,7 +171,7 @@ def clean_df(consolidated_df, background_df=None):
        'religious_6.0',
        'church_2.0', 
        'migration_0.0', 
-       'health_3.0',
+       # 'health_3.0', # Crashed in test
        'civilstatus_married',
        'morechildren_1.0', 
        'morechildren_2.0', 
@@ -187,9 +187,9 @@ def clean_df(consolidated_df, background_df=None):
        'duration', 
        'duration2',
        'partner_satisfaction',
-       'partner3cat_1.0', # with partner
-       'partner3cat_2.0', # non-resident partner
-       'partner3cat_3.0', # no partner, leave 3 in case of singularity (3: low frequency)
+       # 'partner3cat_1.0', # with partner
+       # 'partner3cat_2.0', # non-resident partner
+       # 'partner3cat_3.0', # no partner, leave 3 in case of singularity (3: low frequency)
        'cvresp' # Created by Abi
        ]
     #%% Create a new DataFrame with the selected columns

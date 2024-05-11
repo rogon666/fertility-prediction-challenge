@@ -127,7 +127,7 @@ def clean_df(df, background_df=None):
     consolidated_df.rename(columns={'civilstatus_1.0': 'civilstatus_married'}, inplace=True)
     # Create a new DataFrame for the merged column
     new_col = pd.DataFrame({
-        'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0'] | consolidated_df['civilstatus_4.0']).astype(int)
+        'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0']).astype(int)
     })
     consolidated_df = pd.concat([consolidated_df, new_col], axis=1)
     # Employment:

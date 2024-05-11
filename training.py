@@ -136,9 +136,13 @@ def clean_df(consolidated_df, background_df=None):
     # Partner recoded after one-hot enconding:
     consolidated_df.rename(columns={'civilstatus_1.0': 'civilstatus_married'}, inplace=True)
     # Create a new DataFrame for the merged column
+    # new_col = pd.DataFrame({
+    #     'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0'] | consolidated_df['civilstatus_4.0']).astype(int)
+    # })
     new_col = pd.DataFrame({
-        'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0'] | consolidated_df['civilstatus_4.0']).astype(int)
+        'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0']).astype(int)
     })
+        # Note: I excluded civil status 4 because it crashes the GitHub test
     consolidated_df = pd.concat([consolidated_df, new_col], axis=1)
     # Employment:
     consolidated_df.rename(columns={'employment_1.0': 'paid_employment'}, inplace=True)

@@ -12,7 +12,7 @@ Version: May 11, 2024
          May 11: includes Abi's code and Zuzana's and Adrien's variables
          I dropped variables that crush the GitHub test <---------------------
          June 1: fixed script based on feedback to the previous code
-         June 2: addtional interaction terms based on feature engineering
+         June 2: includes interaction terms based on feature engineering
 -------------------------------------------------------------------------------
 """         
 # List your libraries and modules here. Don't forget to update environment.yml!

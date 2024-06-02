@@ -225,7 +225,7 @@ def clean_df(df, background_df=None):
     consolidated_df['health_mult_by_cvresp'] = consolidated_df['health']*consolidated_df['cvresp']
     # -------------------------------------------------------------------------
     # Define the list of column names to select
-    selected_features = ['nomem_encr', 'new_child',
+    selected_features = ['nomem_encr',
        'birthyear_bg', 
        'age_bg', 
        'gender_bg',

@@ -11,13 +11,10 @@ Version: May 11, 2024
          New model estimated based on a downgraded version of sklearn (due to unpickle issues)
          May 11: includes Abi's code and Zuzana's and Adrien's variables
          I dropped variables that crush the GitHub test <---------------------
-         June 1: fixed script based on feedback to the previous code
-         June 2: addtional interaction terms based on feature engineering
 -------------------------------------------------------------------------------
 """         
 # List your libraries and modules here. Don't forget to update environment.yml!
 import pandas as pd
-import numpy as np
 # ----------------------------------------------------------------------------
 def clean_df(df, background_df=None):
     # Filter cases for whom the outcome is not available
@@ -30,12 +27,10 @@ def clean_df(df, background_df=None):
     consolidated_df['duration2'] = consolidated_df['duration']*consolidated_df['duration']
         # Note: I am assuming missing duration is equal to 0 (not living with partner)
     # -------------------------------------------------------------------------
-    # Recoding partner:
-    consolidated_df['cf20m024'].value_counts()
-    consolidated_df['cf20m025'].value_counts()
-    consolidated_df['partner'] = 0
-    consolidated_df.loc[(consolidated_df['cf20m024'] == 1) | (consolidated_df['cf20m025'] == 1), 'partner'] = 1
-    consolidated_df['partner'].value_counts()
+    # Recoding partner based on Zuzana's script:
+    consolidated_df['partner_rec'] = consolidated_df['cf20m024']
+    consolidated_df.loc[consolidated_df['cf20m025'] == 2, 'partner_rec'] = 3
+    consolidated_df['partner_rec'].value_counts()
     # -------------------------------------------------------------------------
     # Satisfaction with partner:
     consolidated_df['partner_satisfaction'] = consolidated_df['cf20m180']
@@ -44,65 +39,10 @@ def clean_df(df, background_df=None):
         # Note: we are assuming that people with not partners are unsatisfied 
     # -------------------------------------------------------------------------
     # Previous children
-    consolidated_df['previous_children'] = consolidated_df['cf20m455'] #changed from 454 to 455
+    consolidated_df['previous_children'] = consolidated_df['cf20m454']
     consolidated_df['previous_children'].isna().sum()
     consolidated_df['previous_children'].fillna(0, inplace=True)
     consolidated_df['previous_children'].value_counts()
-    # -------------------------------------------------------------------------    
-    # Years since last child-Zuzana's code in python, recoded by Abi and ChatGPT LOL
-    # Year of birth last child
-    # Fifth child
-    consolidated_df['last_child'] = np.where(consolidated_df['cf20m455'] == 5, consolidated_df['cf20m460'], np.nan)
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 5), consolidated_df['cf19l460'], consolidated_df['last_child'])
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 5), consolidated_df['cf18k460'], consolidated_df['last_child'])
-    #Fourth
-    consolidated_df['last_child'] = np.where(consolidated_df['cf20m455'] == 4, consolidated_df['cf20m459'], np.nan)
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 4), consolidated_df['cf19l459'], consolidated_df['last_child'])
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 4), consolidated_df['cf18k459'], consolidated_df['last_child'])
-    #Third
-    consolidated_df['last_child'] = np.where(consolidated_df['cf20m455'] == 3, consolidated_df['cf20m458'], np.nan)
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 3), consolidated_df['cf19l458'], consolidated_df['last_child'])
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 3), consolidated_df['cf18k458'], consolidated_df['last_child'])
-    #Second
-    consolidated_df['last_child'] = np.where(consolidated_df['cf20m455'] == 2, consolidated_df['cf20m457'], np.nan)
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 2), consolidated_df['cf19l457'], consolidated_df['last_child'])
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 2), consolidated_df['cf18k457'], consolidated_df['last_child'])
-    #First
-    consolidated_df['last_child'] = np.where(consolidated_df['cf20m455'] == 1, consolidated_df['cf20m456'], np.nan)
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 1), consolidated_df['cf19l456'], consolidated_df['last_child'])
-    consolidated_df['last_child'] = np.where((consolidated_df['last_child'].isna()) & (consolidated_df['cf20m455'] == 1), consolidated_df['cf18k456'], consolidated_df['last_child'])
-    # Number of years since last birth
-    consolidated_df['zlast_child'] = 2020 - consolidated_df['last_child']
-    consolidated_df['zlast_child'].isna().sum()
-    consolidated_df['zlast_child'].value_counts()
-    consolidated_df['zlast_child'].fillna(0, inplace=True)
-    # -------------------------------------------------------------------------
-    # Average age difference between father's and mother's age
-    # Year of Mother
-    # year of birth of mother 
-    consolidated_df['cf20m009'].value_counts()
-    consolidated_df['cf20m009'].isna().sum()
-    consolidated_df['yrbirth_mom'] = consolidated_df['cf20m009']
-    # Year of mother unknown and year of father known
-    condition1 = consolidated_df['cf20m009'].isna() & consolidated_df['cf20m005'].notna()
-    consolidated_df.loc[condition1, 'yrbirth_mom'] = consolidated_df.loc[condition1, 'cf20m005'] + 2.6
-    # Impute mother's age with age of respondent for the rest
-    mean_diff_mom = (consolidated_df['birthyear_bg'] - consolidated_df['cf20m009']).mean(skipna=True)
-    consolidated_df['yrbirth_mom'] = consolidated_df['yrbirth_mom'].fillna(consolidated_df['birthyear_bg'] - mean_diff_mom - 0.9)
-    # Variable of age of mother at birth of ego
-    consolidated_df['motherage'] = consolidated_df['birthyear_bg'] - consolidated_df['yrbirth_mom']
-    # Year of Father
-    # Year of birth of Father
-    consolidated_df['cf20m005'].value_counts()
-    consolidated_df['cf20m005'].isna().sum()
-    # Year of father unknown and year of mother known
-    condition2 = consolidated_df['cf20m005'].isna() & consolidated_df['cf20m009'].notna()
-    consolidated_df.loc[condition2, 'yrbirth_dad'] = consolidated_df.loc[condition2, 'cf20m009'] - 2.6
-    # Impute dad's age with age of respondent for the rest
-    mean_diff_dad = (consolidated_df['birthyear_bg'] - consolidated_df['cf20m005']).mean(skipna=True)
-    consolidated_df['yrbirth_dad'] = consolidated_df['yrbirth_dad'].fillna(consolidated_df['birthyear_bg'] - mean_diff_dad)
-    # Variable of age of father at birth of ego
-    consolidated_df['fatherage'] = consolidated_df['birthyear_bg'] - consolidated_df['yrbirth_dad']
     # -------------------------------------------------------------------------
     # Financial satisfaction
     consolidated_df = consolidated_df.copy() # To reduce fragmentation
@@ -118,7 +58,7 @@ def clean_df(df, background_df=None):
     consolidated_df.loc[consolidated_df['cv20l_m1'].isna() & consolidated_df['cv20l_m2'].isna() & consolidated_df['cv20l_m3'].isna(), 'cvresp']=0
     consolidated_df['cvresp'].value_counts(dropna=False)  
     #--------------------------------------------------------------------------
-    # People that want to have children should get married.
+    #People that want to have children should get married.
     # 1 fully disagree; 2 disagree; 3 neither agree nor disagree; 4 agree; 5 fully agree
     #Recode to disagree, neither and agree (send unknowns to 3)
     consolidated_df['cv20l125'].value_counts(dropna=False)
@@ -168,36 +108,28 @@ def clean_df(df, background_df=None):
     consolidated_df.loc[consolidated_df['cv20l112'] == 5, 'parcontribute_rec'] = 3
     #See values
     consolidated_df['parcontribute_rec'].value_counts(dropna=False)
-    #--------------------------------------------------------------------------
-    # Health
-    consolidated_df['ch20m004'].value_counts(dropna=False)
-    consolidated_df['health'] = 0
-    consolidated_df.loc[(consolidated_df['ch20m004'] == 3) | (consolidated_df['ch20m004'] == 4), 'health'] = 1
-    consolidated_df['health'].value_counts(dropna=False)
     # -------------------------------------------------------------------------
     # One-hot encoding:
     consolidated_df = pd.get_dummies(consolidated_df, columns=['belbezig_2020'], prefix='employment')    
+    consolidated_df = pd.get_dummies(consolidated_df, columns=['partner_rec'], prefix='partner3cat')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['oplcat_2020'], prefix='eduencoded')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['woning_2020'], prefix='dwelling')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['cr20m142'], prefix='religious')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['cr20m143'], prefix='church')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['migration_background_bg'], prefix='migration')
+    consolidated_df = pd.get_dummies(consolidated_df, columns=['ch20m004'], prefix='health')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['burgstat_2020'], prefix='civilstatus')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['cf20m128'], prefix='morechildren')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['getmarried_rec'], prefix='getmarried')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['singleparent_rec'], prefix='singleparent')
     consolidated_df = pd.get_dummies(consolidated_df, columns=['parcontribute_rec'], prefix='parcontribute')
     # -------------------------------------------------------------------------
-    # Partner recoded after one-hot enconding:
+    # Civil status recoded after one-hot enconding:
     consolidated_df.rename(columns={'civilstatus_1.0': 'civilstatus_married'}, inplace=True)
     # Create a new DataFrame for the merged column
-    # new_col = pd.DataFrame({
-    #     'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0'] | consolidated_df['civilstatus_4.0']).astype(int)
-    # })
     new_col = pd.DataFrame({
         'civilstatus_sepdivwid': (consolidated_df['civilstatus_2.0'] | consolidated_df['civilstatus_3.0']).astype(int)
     })
-        # Note: I excluded civil status 4 because it crashes the GitHub test
     consolidated_df = pd.concat([consolidated_df, new_col], axis=1)
     # Employment:
     consolidated_df.rename(columns={'employment_1.0': 'paid_employment'}, inplace=True)
@@ -210,25 +142,12 @@ def clean_df(df, background_df=None):
     }
     consolidated_df = pd.concat([consolidated_df, pd.DataFrame(new_columns)], axis=1)
     # -------------------------------------------------------------------------
-    # Feature engineering:
-    consolidated_df['motherage_mult_by_cvresp'] = consolidated_df['motherage']*consolidated_df['cvresp']
-    # consolidated_df['motherage_mult_by_cvresp'].isna().sum()
-    # consolidated_df['motherage_mult_by_cvresp'].value_counts()
-    consolidated_df['financial_satisfaction_mult_by_motherage'] = consolidated_df['financial_satisfaction']*consolidated_df['motherage']
-    # consolidated_df['financial_satisfaction_mult_by_motherage'].isna().sum()
-    # consolidated_df['financial_satisfaction_mult_by_motherage'].value_counts(dropna=False)
-    consolidated_df['zlast_child_mult_by_previous_children'] = consolidated_df['zlast_child']*consolidated_df['previous_children']
-    # consolidated_df['zlast_child_mult_by_previous_children'].isna().sum()
-    # consolidated_df['zlast_child_mult_by_previous_children'].value_counts(dropna=False)
-    consolidated_df['fatherage_mult_by_cvresp'] = consolidated_df['fatherage']*consolidated_df['cvresp']
-    consolidated_df['zlast_child_mult_by_partner'] = consolidated_df['zlast_child']*consolidated_df['partner']
-    consolidated_df['health_mult_by_cvresp'] = consolidated_df['health']*consolidated_df['cvresp']
-    # -------------------------------------------------------------------------
     # Define the list of column names to select
-    selected_features = ['nomem_encr', 'new_child',
+    selected_features = ['nomem_encr',
        'birthyear_bg', 
        'age_bg', 
        'gender_bg',
+       'previous_children', # Zuzana's script
        'brutohh_f_2020_imputed_median', 
        'nettohh_f_2020_imputed_median',
        'eduencoded_6.0', 
@@ -240,9 +159,8 @@ def clean_df(df, background_df=None):
        'religious_6.0',
        'church_2.0', 
        'migration_0.0', 
-       'health',
+       'health', #
        'civilstatus_married',
-       'previous_children', #Added
        'morechildren_1.0', 
        'morechildren_2.0', 
        'morechildren_3.0', 
@@ -257,18 +175,11 @@ def clean_df(df, background_df=None):
        'duration', 
        'duration2',
        'partner_satisfaction',
-       'motherage',     # Mother's age 
-       'fatherage',     # Father's age 
-       'zlast_child', # Number of years since last birth: Zuzana's variable in Python format (Abi)
-       'partner', # with partner
-       'cvresp', # Created by Abi
-       'motherage_mult_by_cvresp', # interaction term obtained with feature engineering
-       'financial_satisfaction_mult_by_motherage', # interaction term obtained with feature engineering
-       'zlast_child_mult_by_previous_children', # interaction term obtained with feature engineering
-       'fatherage_mult_by_cvresp', # interaction term obtained with feature engineering
-       'zlast_child_mult_by_partner', # interaction term obtained with feature engineering
-       'health_mult_by_cvresp' # interaction term obtained with feature engineering
-       ]   
+       # 'partner3cat_1.0', # with partner
+       # 'partner3cat_2.0', # non-resident partner
+       # 'partner3cat_3.0', # no partner, leave 3 in case of singularity (3: low frequency)
+       'cvresp' # Created by Abi
+       ]
     #%% Create a new DataFrame with the selected columns
     df = consolidated_df[selected_features].copy()
     means = df.mean()
@@ -279,7 +190,7 @@ def clean_df(df, background_df=None):
     return df
 
 import joblib
-def predict_outcomes(df, background_df=None, model_path="RFmodelFE_June2.joblib"):
+def predict_outcomes(df, background_df=None, model_path="RFmodel_May11.joblib"):
     df = clean_df(df, background_df=None)
     ## This script contains a bare minimum working example
     if "nomem_encr" not in df.columns:
